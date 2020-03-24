@@ -1,51 +1,71 @@
 var WIDTH = 78;
+var STEPS = 16;
+var ROWS = 8;
 
-// var patterns = [];
+var patterns = [];
 var interface = document.querySelector('#quickbass');
-var x = 3, y = 4;
-var pattern = 0, step = 0;
+var cursor = {x: 3, y: 4};
+var pattern = 0, step = 0, editing = 0;
 
-// function reset(){
-//   patterns = [];
-//   patterns.push([]);
-// }
+function reset(){
+  patterns = [];
+  var newPattern = [];
+  for(var r = 0; r < ROWS; r++){
+    var newRow = []
+    for(var i = 0; i < STEPS; i++){
+      newRow.push(Math.floor(Math.random() * 2));
+    }
+    newPattern.push(newRow);
+  }
+  patterns.push(newPattern);
+}
+reset();
 
 function draw(){
   var row = makeRow("QuickBass 5.0");
   row += makeRow("Pattern Queue");
-  for(var p = 0; p < 8; p++){
+  for(var p = 0; p < ROWS; p++){
     row += "| " + p + " ";
   }
   row += "| loop |<br>";
   row += makeRow("Play");
   row += " ".repeat(13) + "&#218" + "&#196&#196&#196&#194".repeat(15) + "&#196&#196&#196&#191" + "<br>";
-  for(var r = 0; r < 8; r++){
+  for(var r = 0; r < ROWS; r++){
     row += leftAlign("Thirteen", 13);
-    for(var i = 0; i < 16; i++){
+    for(var i = 0; i < STEPS; i++){
       row += "&#179";
       if (i === step) {
         row += "<span class='selected'>";
       }
-      row += " &#3 ";
+      if (patterns[editing][r][i] === 1) {
+        row += " &#4 ";
+      } else {
+        row += "   ";
+      }
+
       if (i === step) {
         row += "</span>";
       }
     }
-    row += "|<br>";
+    row += "&#179<br>";
   }
   row += " ".repeat(13) + "&#192" + "&#196&#196&#196&#193".repeat(15) + "&#196&#196&#196&#217" + "<br>";
 
   row += makeRow("Edit");
   row += " ".repeat(13) + "&#218" + "&#196&#196&#196&#194".repeat(15) + "&#196&#196&#196&#191" + "<br>";
-  for(var r = 0; r < 8; r++){
+  for(var r = 0; r < ROWS; r++){
     row += leftAlign("Kick", 13);
-    for(var i = 0; i < 16; i++){
+    for(var i = 0; i < STEPS; i++){
       row += "&#179";
-      if (i === x && r === y) {
+      if (i === cursor.x && r === cursor.y) {
         row += "<span class='selected'>";
       }
-      row += "---";
-      if (i === x && r === y) {
+      if (patterns[editing][r][i] === 1) {
+        row += " &#4 ";
+      } else {
+        row += "   ";
+      }
+      if (i === cursor.x && r === cursor.y) {
         row += "</span>";
       }
     }
@@ -53,7 +73,7 @@ function draw(){
   }
   row += " ".repeat(13) + "&#192" + "&#196&#196&#196&#193".repeat(15) + "&#196&#196&#196&#217" + "<br>";
   row += makeRow('')
-  row += makeButtons('These are some buttons'.split(' '));
+  row += makeButtons('[C]lear are some buttons'.split(' '));
   interface.innerHTML = row;
 }
 
@@ -89,16 +109,36 @@ function leftAlign(input, length){
 function handleKeyboard(e){
   switch(e.key){
     case "ArrowDown":
-      y++;
+      if(cursor.y < ROWS - 1){
+        cursor.y++;
+      }
       break;
     case "ArrowUp":
-      y--;
+      if(cursor.y > 0){
+        cursor.y--;
+      }
       break;
     case "ArrowLeft":
-      x--;
+      if(cursor.x > 0){
+        cursor.x--;
+      }
       break;
     case "ArrowRight":
-      x++;
+      if(cursor.x < STEPS - 1){
+        cursor.x++;
+      }
+      break;
+    case " ":
+      patterns[editing][cursor.y][cursor.x] = Math.abs(patterns[editing][cursor.y][cursor.x] - 1);
+      if(cursor.x < STEPS - 1){
+        cursor.x++;
+      }
+      break;
+    case "Backspace":
+      patterns[editing][cursor.y][cursor.x] = 0;
+      if(cursor.x < STEPS - 1){
+        cursor.x++;
+      }
       break;
     default:
       console.log(e);
