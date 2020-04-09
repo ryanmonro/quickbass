@@ -1,3 +1,4 @@
+var VERSION = "1.0"
 var WIDTH = 80;
 var STEPS = 16;
 var ROWS = 8;
@@ -133,12 +134,11 @@ var quickbass = {
     this.editing = this.patterns.length - 1;
   },
   deletePattern: function(){
-    // fix this...some confusion between this.playing being a state or a pattern
-    if(this.playing == this.editing){
-      this.playing -= 1;
+    // TODO: this needs to play nice with the queue and the array of patterns
+    if(this.editing == this.patterns.length - 1){
+      this.patterns.splice(this.editing, 1);
+      this.editing = this.editing - 1;
     }
-    this.patterns.splice(this.editing, 1);
-    this.editing = this.editing - 1;
   },
   startQueue: function(){
     this.context = CONTEXTS.QUEUE;
@@ -203,15 +203,13 @@ var quickbass = {
   }
 };
 
-
-// var patterns = [];
 var interface = document.querySelector('#quickbass');
 
 quickbass.reset();
 draw();
 
 function draw(step){
-  var row = makeRow("QuickBass 5.0");
+  var row = makeRow("QuickBass " + VERSION);
   row += makeRow("Pattern Queue");
   row += "|"
   for(index in quickbass.queue.array){
